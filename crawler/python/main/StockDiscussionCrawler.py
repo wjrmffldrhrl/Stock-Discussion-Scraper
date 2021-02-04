@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 import requests
 import time
 
-
 class StockDiscussionCrawler(object):
 
     def __init__(self, item_code):
@@ -31,7 +30,8 @@ class StockDiscussionCrawler(object):
         target_url = self.__main_url + discussion_url
         # target_url = "https://finance.naver.com/item/board_read.nhn?code=005930&nid=162275548&st=&sw=&page=1"
         headers = {"referer": target_url}
-        request = requests.get(target_url, headers=headers)
+
+        request = requests.get(target_url, headers=headers, verify=False)
 
         bs = BeautifulSoup(request.text, "html.parser")
 
@@ -63,7 +63,8 @@ class StockDiscussionCrawler(object):
 
         count = 0
         while count < quantity:
-            time.sleep(10)
+            time.sleep(3)
+
             discussion = self.__get_discussion(discussion_url)
 
             # if not discussion.has_next():
