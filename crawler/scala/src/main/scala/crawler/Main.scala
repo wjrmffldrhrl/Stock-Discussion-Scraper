@@ -1,9 +1,9 @@
 package crawler
+import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 
-class Main extends App {
-  println("hello")
+object Main extends App {
+  val browser = JsoupBrowser()
+  val doc2 = browser.get("http://example.com")
 
-  val x: Int = 1
-
-  print(x)
+  print(doc2)
 }
