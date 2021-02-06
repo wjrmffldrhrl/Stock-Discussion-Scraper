@@ -1,9 +1,12 @@
 package crawler
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 
+//https://github.com/ruippeixotog/scala-scraper
 object Main extends App {
-  val browser = JsoupBrowser()
-  val doc2 = browser.get("http://example.com")
+  val samsungStockDiscussionCrawler = new StockDiscussionCrawler("005930")
 
-  print(doc2)
+  val result = samsungStockDiscussionCrawler.getStartDiscussionUrl()
+
+  print(result)
+
 }
