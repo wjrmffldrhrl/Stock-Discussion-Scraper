@@ -4,6 +4,8 @@ import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 
+import java.io.{File, FileWriter, PrintWriter}
+
 
 class StockDiscussionCrawler(itemCode: String) {
 
@@ -85,6 +87,19 @@ class StockDiscussionCrawler(itemCode: String) {
   def runBackward(amount: Int): Unit = {
     var url = getStartDiscussionUrl
 
+
+    val csv = new File("test.csv")
+    val isFileExists = csv.exists
+
+    val writer = new FileWriter(csv, true)
+    if(!isFileExists && !csv.isDirectory) {
+      println("no file ")
+      writer.write("url,title,content,date,previousDiscussionUrl,nextDiscussionUrl" + "\n")
+    } else {
+      println("exists")
+    }
+
+
     var count = 0
     while(count < amount) {
 
@@ -95,8 +110,12 @@ class StockDiscussionCrawler(itemCode: String) {
       url = "/item/" + discussion.previousDiscussionUrl
       count += 1
       println(discussion)
+      writer.write(discussion.toCsv + "\n")
 
     }
+
+    writer.close()
+
   }
 
 
