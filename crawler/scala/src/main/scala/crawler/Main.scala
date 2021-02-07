@@ -1,12 +1,15 @@
 package crawler
-import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 
-//https://github.com/ruippeixotog/scala-scraper
+import java.io.ByteArrayInputStream
+import java.nio.charset.StandardCharsets
+
+
 object Main extends App {
-  val samsungStockDiscussionCrawler = new StockDiscussionCrawler("005930")
 
-  val result = samsungStockDiscussionCrawler.getStartDiscussionUrl()
+  val crawler = new StockDiscussionCrawler("005930")
+  val script = crawler.getStartDiscussionUrl
 
-  print(result)
+
+  print(script)
 
 }
