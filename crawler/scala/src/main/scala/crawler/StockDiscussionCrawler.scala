@@ -5,6 +5,8 @@ import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 
 import java.io.{File, FileWriter, PrintWriter}
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 
 
 class StockDiscussionCrawler(itemCode: String) {
@@ -36,7 +38,7 @@ class StockDiscussionCrawler(itemCode: String) {
 
     val title = (doc >> attr("title")("strong[class=c p15]")).replace(",", " ")
     val content = (doc >> text("#body")).replace(",", " ")
-    val date = doc >> text("th[style=padding: 5px 14px 7px 0pt; border-bottom: 1px solid #E5E5E5;]")
+    val date = (doc >> text("th[style=padding: 5px 14px 7px 0pt; border-bottom: 1px solid #E5E5E5;]")).replace(" ", "T")
     val discussionUrlTags = doc >> elements("a")
 
     val discussionUrls = discussionUrlTags.filter(u => u.hasAttr("title")).map(u => u.attr("href")).filter(u => u.startsWith("board_read"))
@@ -87,29 +89,26 @@ class StockDiscussionCrawler(itemCode: String) {
   def runBackward(amount: Int): Unit = {
     var url = getStartDiscussionUrl
 
-
-    val csv = new File("test.csv")
-    val isFileExists = csv.exists
-
-    val writer = new FileWriter(csv, true)
-    if(!isFileExists && !csv.isDirectory) {
-      println("no file ")
-      writer.write("url,title,content,date,previousDiscussionUrl,nextDiscussionUrl" + "\n")
-    } else {
-      println("exists")
-    }
-
+    var fileName = "t"
+    var writer = initOutputFileWriter(fileName)
 
     var count = 0
     while(count < amount) {
 
-      Thread.sleep(1000)
+      Thread.sleep(500)
       val discussion = getDiscussion(url)
 
 
       url = "/item/" + discussion.previousDiscussionUrl
       count += 1
-      println(discussion)
+      val discussionDate = discussion.date.split("T")(0).replace(".", "_")
+
+      if (!discussionDate.equals(fileName)) {
+        writer.close()
+        writer = initOutputFileWriter(discussionDate)
+      }
+
+      println(discussion.toCsv)
       writer.write(discussion.toCsv + "\n")
 
     }
@@ -118,11 +117,16 @@ class StockDiscussionCrawler(itemCode: String) {
 
   }
 
+  def initOutputFileWriter(fileName: String): FileWriter = {
+    var csv = new File("discussion/" + this.itemCode + "/" + fileName + ".csv")
+    val isFileExists = csv.exists
 
-  def main(args: Array[String]): Unit = {
+    var writer = new FileWriter(csv, true)
 
-    val crawler = new StockDiscussionCrawler("005930")
-    crawler.runBackward(10)
+    if(!isFileExists && !csv.isDirectory) {
+      writer.write("url,title,content,date,previousDiscussionUrl,nextDiscussionUrl" + "\n")
+    }
+
+    writer
   }
-
 }
