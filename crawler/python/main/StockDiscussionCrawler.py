@@ -31,7 +31,7 @@ class StockDiscussionCrawler(object):
         # target_url = "https://finance.naver.com/item/board_read.nhn?code=005930&nid=162275548&st=&sw=&page=1"
         headers = {"referer": target_url}
 
-        request = requests.get(target_url, headers=headers, verify=False)
+        request = requests.get(target_url, headers=headers)
 
         bs = BeautifulSoup(request.text, "html.parser")
 

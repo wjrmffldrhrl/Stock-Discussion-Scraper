@@ -119,5 +119,10 @@ class StockDiscussionCrawler(itemCode: String) {
   }
 
 
+  def main(args: Array[String]): Unit = {
+
+    val crawler = new StockDiscussionCrawler("005930")
+    crawler.runBackward(10)
+  }
 
 }
