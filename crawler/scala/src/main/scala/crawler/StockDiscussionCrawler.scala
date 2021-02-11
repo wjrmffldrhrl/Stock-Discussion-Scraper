@@ -86,21 +86,25 @@ class StockDiscussionCrawler(itemCode: String) {
     }
   }
 
-  def runBackward(amount: Int): Unit = {
+  def runBackward: Unit = {
     var url = getStartDiscussionUrl
 
     var fileName = "t"
     var writer = initOutputFileWriter(fileName)
 
-    var count = 0
-    while(count < amount) {
+    var run = true
+    while(run) {
+
 
       Thread.sleep(500)
       val discussion = getDiscussion(url)
 
+      if(discussion.previousDiscussionUrl.length < 1) {
+        run = false
+      }
 
       url = "/item/" + discussion.previousDiscussionUrl
-      count += 1
+
       val discussionDate = discussion.date.split("T")(0).replace(".", "_")
 
       if (!discussionDate.equals(fileName)) {
