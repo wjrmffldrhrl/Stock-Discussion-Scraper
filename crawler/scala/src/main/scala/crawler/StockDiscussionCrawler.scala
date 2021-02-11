@@ -15,7 +15,7 @@ class StockDiscussionCrawler(itemCode: String) {
   val boardUrl: String = "/item/board.nhn"
   val browser = JsoupBrowser()
 
-  private def getStartDiscussionUrl: String = {
+  def getStartDiscussionUrl: String = {
     val targetUrl = this.mainUrl + this.boardUrl + "?code=" + this.itemCode
 
 
@@ -30,7 +30,7 @@ class StockDiscussionCrawler(itemCode: String) {
 
   }
 
-  private def getDiscussion(discussionUrl: String): StockDiscussion = {
+  def getDiscussion(discussionUrl: String): StockDiscussion = {
     val targetUrl = this.mainUrl + discussionUrl
     val script = getScript(targetUrl)
 
@@ -40,21 +40,24 @@ class StockDiscussionCrawler(itemCode: String) {
     val content = (doc >> text("#body")).replace(",", " ")
     val date = (doc >> text("th[style=padding: 5px 14px 7px 0pt; border-bottom: 1px solid #E5E5E5;]")).replace(" ", "T")
     val discussionUrlTags = doc >> elements("a")
-
+    val nextPrevious = doc >> texts("span[class=p11 gray03]")
     val discussionUrls = discussionUrlTags.filter(u => u.hasAttr("title")).map(u => u.attr("href")).filter(u => u.startsWith("board_read"))
-    val previousDiscussionUrl = discussionUrls.last
 
+    var previousDiscussionUrl = ""
     var nextDiscussionUrl = ""
 
-    if (discussionUrls.size > 1) {
-      nextDiscussionUrl = discussionUrls.head
+    if (nextPrevious.size == 2) {
+      previousDiscussionUrl = discussionUrls.head
+      nextDiscussionUrl = discussionUrls.last
+    } else {
+      if (nextPrevious.head.equals("이전")) {
+        previousDiscussionUrl = discussionUrls.head
+      } else {
+        nextDiscussionUrl = discussionUrls.last
+      }
     }
 
-
-
     new StockDiscussion(targetUrl, title, content, date, previousDiscussionUrl, nextDiscussionUrl)
-
-
 
   }
 
@@ -78,8 +81,8 @@ class StockDiscussionCrawler(itemCode: String) {
       Thread.sleep(5000)
       val discussion = getDiscussion(url)
 
-      if (discussion.hasNextDiscussionUrl) {
-        url = "/item/" + discussion.nextDiscussionUrl
+      if (discussion.previousDiscussionUrl.length > 1) {
+        url = "/item/" + discussion.previousDiscussionUrl
         count += 1
         println(discussion)
       }

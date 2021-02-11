@@ -9,7 +9,7 @@ object Main extends App {
 
 
   val crawler = new StockDiscussionCrawler("005930")
-  crawler.runBackward(99999999)
+  crawler.runBackward
 
 
 
