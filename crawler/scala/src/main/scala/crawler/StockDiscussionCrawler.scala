@@ -4,9 +4,11 @@ import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 
-import java.io.{File, FileWriter, PrintWriter}
+import java.io.{BufferedReader, File, FileReader, FileWriter, PrintWriter}
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import scala.util.Using
+import scala.util.control.Exception
 
 
 class StockDiscussionCrawler(itemCode: String) {
@@ -20,8 +22,6 @@ class StockDiscussionCrawler(itemCode: String) {
 
 
     val script = getScript(targetUrl)
-
-
 
 
     val doc = browser.parseString(script)
@@ -76,7 +76,7 @@ class StockDiscussionCrawler(itemCode: String) {
     var url = getStartDiscussionUrl
 
     var count = 0
-    while(count < amount) {
+    while (count < amount) {
 
       Thread.sleep(5000)
       val discussion = getDiscussion(url)
@@ -91,32 +91,37 @@ class StockDiscussionCrawler(itemCode: String) {
 
   def runBackward: Unit = {
     var url = getStartDiscussionUrl
-
-    var fileName = "t"
+    new FileChecker(this.itemCode, 10000).start()
+    var fileName = "init"
     var writer = initOutputFileWriter(fileName)
 
-    var run = true
-    while(run) {
+    while (url.length > 1) {
+
+      try {
+        Thread.sleep(100)
+
+        val discussion = getDiscussion(url)
 
 
-      Thread.sleep(500)
-      val discussion = getDiscussion(url)
+        val discussionDate = discussion.date.split("T")(0).replace(".", "_")
 
-      if(discussion.previousDiscussionUrl.length < 1) {
-        run = false
+        if (!discussionDate.equals(fileName)) {
+          writer.close()
+          writer = initOutputFileWriter(discussionDate)
+          fileName = discussionDate
+        }
+
+        println(discussion.toCsv)
+        writer.write(discussion.toCsv + "\n")
+
+        if (discussion.nextDiscussionUrl.length < 1) {
+          url = ""
+        } else {
+          url = "/item/" + discussion.nextDiscussionUrl
+        }
+      } catch {
+        case e: Exception => println("[Error in : " + url + "] " + e)
       }
-
-      url = "/item/" + discussion.previousDiscussionUrl
-
-      val discussionDate = discussion.date.split("T")(0).replace(".", "_")
-
-      if (!discussionDate.equals(fileName)) {
-        writer.close()
-        writer = initOutputFileWriter(discussionDate)
-      }
-
-      println(discussion.toCsv)
-      writer.write(discussion.toCsv + "\n")
 
     }
 
@@ -124,14 +129,22 @@ class StockDiscussionCrawler(itemCode: String) {
 
   }
 
-  def initOutputFileWriter(fileName: String): FileWriter = {
-    var csv = new File("discussion/" + this.itemCode + "/" + fileName + ".csv")
-    val isFileExists = csv.exists
+  private def initOutputFileWriter(fileName: String): FileWriter = {
 
-    var writer = new FileWriter(csv, true)
+    val directoryPath = "discussion/" + this.itemCode
 
-    if(!isFileExists && !csv.isDirectory) {
-      writer.write("url,title,content,date,previousDiscussionUrl,nextDiscussionUrl" + "\n")
+    val directory = new File(directoryPath)
+
+    if (!directory.exists()) {
+      directory.mkdirs()
+    }
+
+    val csv = new File(directoryPath + "/" + fileName + ".csv")
+
+    val writer = new FileWriter(csv, true)
+
+    if (!csv.exists) {
+      writer.write("date,title,content,url,previousDiscussionUrl,nextDiscussionUrl" + "\n")
     }
 
     writer
