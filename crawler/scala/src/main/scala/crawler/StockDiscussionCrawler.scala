@@ -1,5 +1,6 @@
 package crawler
 
+import crawler.manager.file.FileManager
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
@@ -11,7 +12,7 @@ import java.io.{File, FileWriter}
  * 종목 토론방 크롤러
  * @param itemCode 타겟 종목 코드
  */
-class StockDiscussionCrawler(itemCode: String) {
+class StockDiscussionCrawler(itemCode: String, fileManager: FileManager) {
 
   private val mainUrl: String = "https://finance.naver.com"
   private val boardUrl: String = "/item/board.nhn"
@@ -87,7 +88,7 @@ class StockDiscussionCrawler(itemCode: String) {
 
   def runBackward: Unit = {
     var url = getStartDiscussionUrl
-    new FileManager(this.itemCode, 10000).start()
+    fileManager.start()
     var fileName = "init"
     var writer = initOutputFileWriter(fileName)
 

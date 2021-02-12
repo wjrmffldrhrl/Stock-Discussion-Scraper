@@ -10,11 +10,8 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % Test
 
 
 
-// https://mvnrepository.com/artifact/com.google.api-client/google-api-client
-libraryDependencies += "com.google.api-client" % "google-api-client" % "1.31.2"
-
-// https://mvnrepository.com/artifact/com.google.oauth-client/google-oauth-client
+libraryDependencies += "com.google.api-client" % "google-api-client" % "1.23.0"
+libraryDependencies += "com.google.api-client" % "google-api-client-java6" % "1.31.2"
 libraryDependencies += "com.google.oauth-client" % "google-oauth-client" % "1.31.4"
-
-// https://mvnrepository.com/artifact/com.google.apis/google-api-services-drive
-libraryDependencies += "com.google.apis" % "google-api-services-drive" % "v3-rev197-1.25.0"
+libraryDependencies += "com.google.oauth-client" % "google-oauth-client-jetty" % "1.23.0"
+libraryDependencies += "com.google.apis" % "google-api-services-drive" % "v3-rev110-1.23.0"
