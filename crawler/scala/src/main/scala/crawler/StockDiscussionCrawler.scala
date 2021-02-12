@@ -4,44 +4,42 @@ import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 
-import java.io.{BufferedReader, File, FileReader, FileWriter, PrintWriter}
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import scala.util.Using
-import scala.util.control.Exception
+import java.io.{File, FileWriter}
 
 
+/**
+ * 종목 토론방 크롤러
+ * @param itemCode 타겟 종목 코드
+ */
 class StockDiscussionCrawler(itemCode: String) {
 
-  val mainUrl: String = "https://finance.naver.com"
-  val boardUrl: String = "/item/board.nhn"
-  val browser = JsoupBrowser()
+  private val mainUrl: String = "https://finance.naver.com"
+  private val boardUrl: String = "/item/board.nhn"
+  private val browser = JsoupBrowser()
 
   def getStartDiscussionUrl: String = {
-    val targetUrl = this.mainUrl + this.boardUrl + "?code=" + this.itemCode
-
-
-    val script = getScript(targetUrl)
-
-
-    val doc = browser.parseString(script)
-
-    doc >> attr("href")("a[onclick=return singleSubmitCheck();]")
-
+    browser.parseString(
+      getScript(
+        this.mainUrl + this.boardUrl + "?code=" + this.itemCode
+      )
+    ) >> attr("href")("a[onclick=return singleSubmitCheck();]")
   }
 
   def getDiscussion(discussionUrl: String): StockDiscussion = {
     val targetUrl = this.mainUrl + discussionUrl
-    val script = getScript(targetUrl)
 
-    val doc = browser.parseString(script)
+    val doc = browser.parseString(
+      getScript(targetUrl)
+    )
 
     val title = (doc >> attr("title")("strong[class=c p15]")).replace(",", " ")
     val content = (doc >> text("#body")).replace(",", " ")
     val date = (doc >> text("th[style=padding: 5px 14px 7px 0pt; border-bottom: 1px solid #E5E5E5;]")).replace(" ", "T")
     val discussionUrlTags = doc >> elements("a")
     val nextPrevious = doc >> texts("span[class=p11 gray03]")
-    val discussionUrls = discussionUrlTags.filter(u => u.hasAttr("title")).map(u => u.attr("href")).filter(u => u.startsWith("board_read"))
+    val discussionUrls = discussionUrlTags.filter(u => u.hasAttr("title"))
+      .map(u => u.attr("href"))
+      .filter(u => u.startsWith("board_read"))
 
     var previousDiscussionUrl = ""
     var nextDiscussionUrl = ""
@@ -62,17 +60,15 @@ class StockDiscussionCrawler(itemCode: String) {
   }
 
   private def getScript(url: String): String = {
-    val headers = Map[String, String]("referer" -> url)
+    val request = requests.get(url,
+      headers = Map[String, String]("referer" -> url)
+    )
 
-    val request = requests.get(url, headers = headers)
-
-    val script = new String(request.bytes, "EUC-KR")
-
-    script
+    new String(request.bytes, "EUC-KR")
   }
 
   def runFrontward(amount: Int): Unit = {
-    //    val url = "/item/board_read.nhn?code=005930&nid=162767151&st=&sw=&page=1"
+
     var url = getStartDiscussionUrl
 
     var count = 0
@@ -91,7 +87,7 @@ class StockDiscussionCrawler(itemCode: String) {
 
   def runBackward: Unit = {
     var url = getStartDiscussionUrl
-    new FileChecker(this.itemCode, 10000).start()
+    new FileManager(this.itemCode, 10000).start()
     var fileName = "init"
     var writer = initOutputFileWriter(fileName)
 

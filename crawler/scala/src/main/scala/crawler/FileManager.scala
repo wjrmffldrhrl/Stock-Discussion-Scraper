@@ -2,7 +2,13 @@ package crawler
 
 import java.io.File
 
-class FileChecker(itemCode: String, cycleTime: Int) extends Thread{
+/**
+ * 파일 처리 클래스
+ *
+ * @param itemCode 해당 파일 처리 클래스가 사용되는 종목 코드
+ * @param cycleTime 해당 파일 처리 클래스가 동작하는 주기
+ */
+class FileManager(itemCode: String, cycleTime: Int) extends Thread{
   private val targetDirectoryPath = "discussion/" + itemCode
   private val targetDirectory = new File(targetDirectoryPath)
 
@@ -10,6 +16,10 @@ class FileChecker(itemCode: String, cycleTime: Int) extends Thread{
 
   private def uploadFile(targetFile: String): Unit ={
     println("upload file : " + targetFile)
+
+    new File(targetDirectoryPath + "/" + oldFileName).delete()
+
+
   }
 
 
@@ -24,10 +34,8 @@ class FileChecker(itemCode: String, cycleTime: Int) extends Thread{
 
         uploadFile(oldFileName)
 
-        new File(targetDirectoryPath + "/" + oldFileName).delete()
 
         oldFileName = latestFileName
-
       }
 
 
