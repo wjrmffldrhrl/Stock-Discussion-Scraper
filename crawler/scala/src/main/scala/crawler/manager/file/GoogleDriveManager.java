@@ -23,7 +23,7 @@ public class GoogleDriveManager {
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
 
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
-
+    private static final String discussionDirectoryId = "1NvZhfU-8D7SQurvt0CZtP2TA-Er7JADs";
     /**
      * Global instance of the scopes required by this quickstart.
      * If modifying these scopes, delete your previously saved tokens/ folder.
@@ -61,8 +61,6 @@ public class GoogleDriveManager {
         StringBuilder resultStr = new StringBuilder();
         Drive service = getService();
 
-
-
         FileList files = service.files().list()
                 .setQ("mimeType='application/vnd.google-apps.folder' and trashed = false and name='" + fileName + "'")
                 .setSpaces("drive")
@@ -82,7 +80,6 @@ public class GoogleDriveManager {
     }
 
     public static String createDirectory(String directoryName) throws GeneralSecurityException, IOException {
-        String discussionDirectoryId = "1NvZhfU-8D7SQurvt0CZtP2TA-Er7JADs";
         com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
         fileMetadata.setName(directoryName);
         fileMetadata.setMimeType("application/vnd.google-apps.folder");
@@ -110,7 +107,7 @@ public class GoogleDriveManager {
                 GoogleDriveManager.getCredentials(HTTP_TRANSPORT)).setApplicationName("stock-discussion-analysis").build();
     }
 
-    public static String uploadFile(File targetFile) throws IOException, GeneralSecurityException, InterruptedException {
+    public static String uploadFile(File targetFile) throws IOException, GeneralSecurityException {
 
         String itemCode = targetFile.getParentFile().getName();
 

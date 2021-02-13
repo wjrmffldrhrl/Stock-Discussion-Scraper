@@ -1,13 +1,15 @@
 package crawler.manager.file
 
-trait FileManager extends Thread {
+trait FileManager extends Runnable {
 
   val cycleTime: Int
 
   def work()
 
   override def run(): Unit = {
-    Thread.sleep(cycleTime)
-    work()
+    while(true) {
+      Thread.sleep(cycleTime)
+      work()
+    }
   }
 }

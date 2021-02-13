@@ -88,7 +88,9 @@ class StockDiscussionCrawler(itemCode: String, fileManager: FileManager) {
 
   def runBackward: Unit = {
     var url = getStartDiscussionUrl
-    fileManager.start()
+
+    new Thread(fileManager).start()
+
     var fileName = "init"
     var writer = initOutputFileWriter(fileName)
 
@@ -108,7 +110,7 @@ class StockDiscussionCrawler(itemCode: String, fileManager: FileManager) {
           fileName = discussionDate
         }
 
-        println(discussion.toCsv)
+//        println(discussion.toCsv)
         writer.write(discussion.toCsv + "\n")
 
         if (discussion.nextDiscussionUrl.length < 1) {

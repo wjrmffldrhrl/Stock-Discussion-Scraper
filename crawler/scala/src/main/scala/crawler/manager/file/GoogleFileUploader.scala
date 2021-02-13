@@ -18,10 +18,16 @@ class GoogleFileUploader(itemCode: String, inputCycleTime: Int) extends FileMana
   private var oldFileName = "init.csv"
   override val cycleTime: Int = inputCycleTime
 
-  private def uploadFile(targetFile: String): Unit ={
-    println("upload file : " + targetFile)
+  private def uploadFile(targetFileName: String): Unit ={
 
-    new File(targetDirectoryPath + "/" + oldFileName).delete()
+    val targetFile = new File(targetDirectoryPath + "/" + oldFileName)
+
+    if (!targetFileName.startsWith("init")) {
+      println("upload file : " + targetFileName)
+      GoogleDriveManager.uploadFile(targetFile)
+    }
+
+    targetFile.delete()
 
 
   }
