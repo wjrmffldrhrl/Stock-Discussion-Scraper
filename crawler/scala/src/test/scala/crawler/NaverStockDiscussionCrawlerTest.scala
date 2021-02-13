@@ -3,9 +3,9 @@ package crawler
 import crawler.manager.file.{GoogleFileUploader, SimpleFileManager}
 import org.scalatest.FunSuite
 
-class StockDiscussionCrawlerTest extends FunSuite {
+class NaverStockDiscussionCrawlerTest extends FunSuite {
     test("test get discussion") {
-      val crawler = new StockDiscussionCrawler("005930", new SimpleFileManager(10000))
+      val crawler = new NaverStockDiscussionCrawler("005930", 1, new SimpleFileManager(10000))
       val discussion = crawler.getDiscussion("/item/board_read.nhn?code=005930&nid=64102696&st=&sw=&page=46750")
 
       println(discussion)
@@ -17,7 +17,7 @@ class StockDiscussionCrawlerTest extends FunSuite {
     }
 
   test("test no previous discussion") {
-    val crawler = new StockDiscussionCrawler("005930", new SimpleFileManager(10000))
+    val crawler = new NaverStockDiscussionCrawler("005930", 1, new SimpleFileManager(10000))
     val firstUrl = crawler.getStartDiscussionUrl
 
     val discussion = crawler.getDiscussion(firstUrl)
@@ -29,7 +29,7 @@ class StockDiscussionCrawlerTest extends FunSuite {
   }
 
   test("test no next discussion") {
-    val crawler = new StockDiscussionCrawler("005930", new SimpleFileManager(10000))
+    val crawler = new NaverStockDiscussionCrawler("005930", 1, new SimpleFileManager(10000))
     val discussion = crawler.getDiscussion("/item/board_read.nhn?code=005930&nid=64104583&st=&sw=&page=46711")
 
     print(discussion)

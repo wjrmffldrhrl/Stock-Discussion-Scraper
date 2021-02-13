@@ -1,17 +1,24 @@
 package crawler
 
-import crawler.StockDiscussionCrawler
-import crawler.manager.file.{GoogleFileUploader, SimpleFileManager}
-
+import crawler.manager.file.GoogleFileUploader
+import scala.io.Source
 
 object Main {
   def main(args: Array[String]): Unit = {
 
-    val stockItemCode: String = "005930"
-    val cycleTime = 10000
-    val crawler = new StockDiscussionCrawler(stockItemCode, new GoogleFileUploader(stockItemCode, cycleTime))
-//    val crawler = new StockDiscussionCrawler(stockItemCode, new SimpleFileManager(5000))
-    crawler.runBackward
+
+    try {
+      Source.fromFile("stock_list.txt").getLines().foreach(itemCode => {
+        new Thread(new NaverStockDiscussionCrawler(itemCode, 500, new GoogleFileUploader(itemCode, 10000)))
+          .start()
+      })
+    } catch {
+      case ex: Exception => println(ex)
+    }
+
+
+
+
   }
 
 }
