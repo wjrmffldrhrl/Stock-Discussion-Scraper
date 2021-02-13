@@ -7,3 +7,12 @@
 # Version
 - Scala
   - 2.13.4
+- SBT
+  - 1.4.7
+
+# How to run
+
+```shell
+cd stock_discussion_crawler
+sbt run
+```
