@@ -4,9 +4,6 @@
 # Target Site
 - Naver Stock Discussion
 
-# Lib
-- Beautifulsoup4
-- requests
 # Version
-- Python
-  - 3.8.5
+- Scala
+  - 2.13.4
