@@ -137,4 +137,8 @@ public class GoogleDriveManager {
     }
 
     public static JsonFactory getJsonFactory() { return JSON_FACTORY; }
+
+    public static void main(String[] args) {
+        ArrayDeque<Integer>[] dq = new ArrayDeque[6];
+    }
 }
