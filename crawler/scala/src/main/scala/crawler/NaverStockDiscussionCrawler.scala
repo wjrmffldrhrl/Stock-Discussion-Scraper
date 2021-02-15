@@ -5,7 +5,8 @@ import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 
-import java.io.{File, FileWriter}
+import java.io.{File, FileNotFoundException, FileReader, FileWriter}
+import scala.io.Source
 
 
 /**
@@ -20,6 +21,17 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int ,fileManager:
 
 
   def getStartDiscussionUrl: String = {
+
+
+    try {
+
+      return Source.fromFile("data/" + this.itemCode + "_last_url.txt" ).getLines().next()
+
+    } catch {
+      case e: FileNotFoundException => println("last url file not found")
+      case e: NoSuchElementException => println("last url file is empty")
+    }
+
     browser.parseString(
       getScript(
         this.mainUrl + this.boardUrl + "?code=" + this.itemCode
@@ -102,6 +114,7 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int ,fileManager:
 
         val discussion = getDiscussion(url)
 
+        println(discussion)
 
         val discussionDate = discussion.date.split("T")(0).replace(".", "_")
 
@@ -111,7 +124,6 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int ,fileManager:
           fileName = discussionDate
         }
 
-//        println(discussion.toCsv)
         writer.write(discussion.toCsv + "\n")
 
         if (discussion.nextDiscussionUrl.length < 1) {
@@ -149,6 +161,8 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int ,fileManager:
 
     writer
   }
+
+
 
 
   override def work: Unit = {

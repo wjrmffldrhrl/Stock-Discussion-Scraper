@@ -121,7 +121,7 @@ public class GoogleDriveManager {
 
         com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
         fileMetadata.setName(targetFile.getName());
-        fileMetadata.setMimeType("application/vnd.google-apps.spreadsheet");
+        fileMetadata.setMimeType("text/csv");
         fileMetadata.setParents(Collections.singletonList(itemDirectoryId));
 
         FileContent mediaContent = new FileContent("text/csv", targetFile);
@@ -138,7 +138,4 @@ public class GoogleDriveManager {
 
     public static JsonFactory getJsonFactory() { return JSON_FACTORY; }
 
-    public static void main(String[] args) {
-        ArrayDeque<Integer>[] dq = new ArrayDeque[6];
-    }
 }

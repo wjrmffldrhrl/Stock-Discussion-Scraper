@@ -8,13 +8,14 @@ object Main {
 
 
     try {
-      Source.fromFile("stock_list.txt").getLines().foreach(itemCode => {
-        new Thread(new NaverStockDiscussionCrawler(itemCode, 500, new GoogleFileUploader(itemCode, 10000)))
+      Source.fromFile("stock_list.txt").getLines().filter(line => !line.startsWith("#")).foreach(itemCode => {
+        new Thread(new NaverStockDiscussionCrawler(itemCode, 100, new GoogleFileUploader(itemCode, 10000)))
           .start()
       })
     } catch {
       case ex: Exception => println(ex)
     }
+
 
 
 
