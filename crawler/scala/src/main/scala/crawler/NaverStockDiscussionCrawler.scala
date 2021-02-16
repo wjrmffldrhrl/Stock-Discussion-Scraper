@@ -5,15 +5,17 @@ import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 
-import java.io.{File, FileNotFoundException, FileReader, FileWriter}
+import java.io.{BufferedWriter, File, FileNotFoundException, FileReader, FileWriter}
 import scala.io.Source
+import scala.util.Using
 
 
 /**
  * 종목 토론방 크롤러
+ *
  * @param itemCode 타겟 종목 코드
  */
-class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int ,fileManager: FileManager) extends StockDiscussionCrawler {
+class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager: FileManager) extends StockDiscussionCrawler {
 
   private val mainUrl: String = "https://finance.naver.com"
   private val boardUrl: String = "/item/board.nhn"
@@ -25,7 +27,7 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int ,fileManager:
 
     try {
 
-      return Source.fromFile("data/" + this.itemCode + "_last_url.txt" ).getLines().next()
+      return Source.fromFile("discussion/" + this.itemCode + "/last_url.log").getLines().next()
 
     } catch {
       case e: FileNotFoundException => println("last url file not found")
@@ -105,7 +107,7 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int ,fileManager:
     new Thread(fileManager).start()
 
     var fileName = "init"
-    var writer = initOutputFileWriter(fileName)
+    var csvWriter = initOutputFileWriter(fileName)
 
     while (url.length > 1) {
 
@@ -113,31 +115,33 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int ,fileManager:
         Thread.sleep(cycleTime)
 
         val discussion = getDiscussion(url)
-
-        println(discussion)
-
         val discussionDate = discussion.date.split("T")(0).replace(".", "_")
 
         if (!discussionDate.equals(fileName)) {
-          writer.close()
-          writer = initOutputFileWriter(discussionDate)
+          csvWriter.close()
+          csvWriter = initOutputFileWriter(discussionDate)
           fileName = discussionDate
         }
 
-        writer.write(discussion.toCsv + "\n")
+        csvWriter.write(discussion.toCsv + "\n")
 
         if (discussion.nextDiscussionUrl.length < 1) {
           url = ""
         } else {
           url = "/item/" + discussion.nextDiscussionUrl
+          Using(new BufferedWriter(new FileWriter("discussion/" + this.itemCode + "/last_url.log"))) {
+            writer => writer.write(url + "\r\n")
+          }
+
         }
+
       } catch {
         case e: Exception => println("[Error in : " + url + "] " + e)
       }
 
     }
 
-    writer.close()
+    csvWriter.close()
 
   }
 
@@ -154,15 +158,11 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int ,fileManager:
     val csv = new File(directoryPath + "/" + fileName + ".csv")
 
     val writer = new FileWriter(csv, true)
+    writer.write("date,title,content,url,previousDiscussionUrl,nextDiscussionUrl" + "\n")
 
-    if (!csv.exists) {
-      writer.write("date,title,content,url,previousDiscussionUrl,nextDiscussionUrl" + "\n")
-    }
 
     writer
   }
-
-
 
 
   override def work: Unit = {

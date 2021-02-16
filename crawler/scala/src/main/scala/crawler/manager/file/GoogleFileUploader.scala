@@ -34,7 +34,7 @@ class GoogleFileUploader(itemCode: String, inputCycleTime: Int) extends FileMana
 
   override def work(): Unit = {
 
-    val otherFiles = targetDirectory.list().filter(file => !file.equals(oldFileName))
+    val otherFiles = targetDirectory.list().filter(file => file.endsWith(".csv")).filter(file => !file.equals(oldFileName))
 
     if (!otherFiles.isEmpty) {
       val latestFileName = otherFiles.head
