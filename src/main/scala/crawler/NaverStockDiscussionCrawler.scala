@@ -6,6 +6,7 @@ import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 
 import java.io.{BufferedWriter, File, FileNotFoundException, FileReader, FileWriter}
+import java.time.LocalDateTime
 import scala.io.Source
 import scala.util.Using
 
@@ -20,6 +21,7 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
   private val mainUrl: String = "https://finance.naver.com"
   private val boardUrl: String = "/item/board.nhn"
   private val browser = JsoupBrowser()
+  private val fileSplitThreshold = 10000
 
 
   def getStartDiscussionUrl: String = {
@@ -108,7 +110,7 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
 
     var fileName = "init"
     var csvWriter = initOutputFileWriter(fileName)
-
+    var discussionCount = 0
     while (url.length > 1) {
 
       try {
@@ -117,26 +119,32 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
         val discussion = getDiscussion(url)
         val discussionDate = discussion.date.split("T")(0).replace(".", "_")
 
-        if (!discussionDate.equals(fileName)) {
-          csvWriter.close()
-          csvWriter = initOutputFileWriter(discussionDate)
-          fileName = discussionDate
-        }
 
-        csvWriter.write(discussion.toCsv + "\n")
 
         if (discussion.nextDiscussionUrl.length < 1) {
           url = ""
         } else {
           url = "/item/" + discussion.nextDiscussionUrl
-          Using(new BufferedWriter(new FileWriter("discussion/" + this.itemCode + "/last_url.log"))) {
-            writer => writer.write(url + "\r\n")
-          }
+
 
         }
 
+        discussionCount += 1
+        if (discussionCount >= fileSplitThreshold || fileName.equals("init")) {
+          csvWriter.close()
+          csvWriter = initOutputFileWriter(discussionDate)
+          fileName = discussionDate
+          discussionCount = 0
+
+          Using(new BufferedWriter(new FileWriter("discussion/" + this.itemCode + "/last_url.log"))) {
+            writer => writer.write(url + "\r\n")
+          }
+        }
+
+        csvWriter.write(discussion.toCsv + "\n")
+
       } catch {
-        case e: Exception => println("[Error in : " + url + "] " + e)
+        case e: Exception => println(LocalDateTime.now() + "[Error in  " + this.itemCode + " : " + url + "] " + e)
       }
 
     }

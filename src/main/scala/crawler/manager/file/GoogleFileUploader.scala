@@ -1,6 +1,7 @@
 package crawler.manager.file
 
 import java.io.File
+import java.time.LocalDateTime
 
 /**
  * 파일 처리 클래스
@@ -23,7 +24,7 @@ class GoogleFileUploader(itemCode: String, inputCycleTime: Int) extends FileMana
     val targetFile = new File(targetDirectoryPath + "/" + oldFileName)
 
     if (!targetFileName.startsWith("init")) {
-      println("upload file : " + targetFileName)
+      println("[" + LocalDateTime.now() + "] " + this.itemCode + " upload file : " + targetFileName)
       GoogleDriveManager.uploadFile(targetFile)
     }
 

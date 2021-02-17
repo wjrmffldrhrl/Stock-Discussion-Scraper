@@ -9,7 +9,7 @@ object Main {
 
     try {
       Source.fromFile("stock_list.txt").getLines().filter(line => !line.startsWith("#")).foreach(itemCode => {
-        new Thread(new NaverStockDiscussionCrawler(itemCode, 100, new GoogleFileUploader(itemCode, 10000)))
+        new Thread(new NaverStockDiscussionCrawler(itemCode, 300, new GoogleFileUploader(itemCode, 10000)))
           .start()
       })
     } catch {
