@@ -1,4 +1,4 @@
-name := "scala"
+name := "stock_discussion_crawler"
 
 version := "0.1"
 
