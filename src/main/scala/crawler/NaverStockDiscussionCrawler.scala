@@ -22,10 +22,14 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
   private val boardUrl: String = "/item/board.nhn"
   private val browser = JsoupBrowser()
   private val fileSplitThreshold = 10000
+  private var runDirection = "backward"
+
+  def setRunDirection(runDirection: String): Unit = {
+    this.runDirection = runDirection
+  }
 
 
   def getStartDiscussionUrl: String = {
-
 
     try {
 
@@ -85,25 +89,63 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
     new String(request.bytes, "EUC-KR")
   }
 
-  def runFrontward(amount: Int): Unit = {
+  def runFrontward(): Unit = {
 
     var url = getStartDiscussionUrl
 
-    var count = 0
-    while (count < amount) {
+    new Thread(fileManager).start()
 
-      Thread.sleep(5000)
-      val discussion = getDiscussion(url)
+    var fileName = "init"
+    var csvWriter = initOutputFileWriter(fileName)
+    var discussionCount = 0
 
-      if (discussion.previousDiscussionUrl.length > 1) {
-        url = "/item/" + discussion.previousDiscussionUrl
-        count += 1
-        println(discussion)
+    var dataWaitTime = 1
+    while (true) {
+
+      try {
+        Thread.sleep(cycleTime * dataWaitTime)
+
+        val discussion = getDiscussion(url)
+
+        if (discussion.previousDiscussionUrl.length < 1) {
+          dataWaitTime += 1
+        } else {
+          println(discussion)
+          val discussionDate = discussion.date.split("T")(0).replace(".", "_")
+          dataWaitTime = 1
+          url = "/item/" + discussion.previousDiscussionUrl
+
+          discussionCount += 1
+          if (discussionCount >= fileSplitThreshold || fileName.equals("init")) {
+            csvWriter.close()
+            csvWriter = initOutputFileWriter(discussionDate)
+            fileName = discussionDate
+            discussionCount = 0
+
+            Using(new BufferedWriter(new FileWriter("discussion/" + this.itemCode + "/last_url.log"))) {
+              writer => writer.write(url + "\r\n")
+            }
+          }
+
+
+          csvWriter.write(discussion.toCsv + "\n")
+
+        }
+
+      } catch {
+        case e: Exception => {
+          println(LocalDateTime.now() + "[Error in  " + this.itemCode + " : " + url + "] " + e)
+          new File("discussion/" + this.itemCode + "/last_url.log").delete()
+          url = getStartDiscussionUrl
+        }
       }
+
     }
+
+    csvWriter.close()
   }
 
-  def runBackward: Unit = {
+  def runBackward(): Unit = {
     var url = getStartDiscussionUrl
 
     new Thread(fileManager).start()
@@ -120,18 +162,16 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
         val discussionDate = discussion.date.split("T")(0).replace(".", "_")
 
 
-
         if (discussion.nextDiscussionUrl.length < 1) {
           url = ""
         } else {
           url = "/item/" + discussion.nextDiscussionUrl
-
-
         }
 
         discussionCount += 1
         if (discussionCount >= fileSplitThreshold || fileName.equals("init")) {
           csvWriter.close()
+
           csvWriter = initOutputFileWriter(discussionDate)
           fileName = discussionDate
           discussionCount = 0
@@ -174,7 +214,15 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
 
 
   override def work: Unit = {
-    println("run backward with " + itemCode)
-    runBackward
+    println(s"run $runDirection with " + itemCode)
+
+    if (this.runDirection.equals("backward")) {
+      runBackward()
+    } else if (this.runDirection.equals("frontward")) {
+      runFrontward()
+    } else {
+      throw new RuntimeException(s"Run direction exception with [$runDirection]")
+    }
+
   }
 }
