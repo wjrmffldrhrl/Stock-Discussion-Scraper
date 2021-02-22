@@ -98,8 +98,9 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
     var fileName = "init"
     var csvWriter = initOutputFileWriter(fileName)
     var discussionCount = 0
-
     var dataWaitTime = 1
+    val lastUrlWriter = new BufferedWriter(new FileWriter("discussion/" + this.itemCode + "/last_url.log"))
+
     while (true) {
 
       try {
@@ -110,7 +111,7 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
         if (discussion.previousDiscussionUrl.length < 1) {
           dataWaitTime += 1
         } else {
-          println(discussion)
+          //          println(discussion)
           val discussionDate = discussion.date.split("T")(0).replace(".", "_")
           dataWaitTime = 1
           url = "/item/" + discussion.previousDiscussionUrl
@@ -122,13 +123,19 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
             fileName = discussionDate
             discussionCount = 0
 
-            Using(new BufferedWriter(new FileWriter("discussion/" + this.itemCode + "/last_url.log"))) {
-              writer => writer.write(url + "\r\n")
-            }
+
+
           }
 
+          lastUrlWriter.write(url, 0, url.length)
 
+          println(discussion.toCsv)
           csvWriter.write(discussion.toCsv + "\n")
+          csvWriter.flush()
+
+          Using(new BufferedWriter(new FileWriter("discussion/" + this.itemCode + "/last_url.log"))) {
+            writer => writer.write(url + "\n")
+          }
 
         }
 
@@ -143,6 +150,7 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
     }
 
     csvWriter.close()
+    lastUrlWriter.close()
   }
 
   def runBackward(): Unit = {
@@ -193,7 +201,7 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
 
   }
 
-  private def initOutputFileWriter(fileName: String): FileWriter = {
+  private def initOutputFileWriter(fileName: String): BufferedWriter = {
 
     val directoryPath = "discussion/" + this.itemCode
 
@@ -205,7 +213,7 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
 
     val csv = new File(directoryPath + "/" + fileName + ".csv")
 
-    val writer = new FileWriter(csv, true)
+    val writer = new BufferedWriter(new FileWriter(csv, true))
     writer.write("date,title,content,url,previousDiscussionUrl,nextDiscussionUrl" + "\n")
 
 
