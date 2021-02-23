@@ -1,5 +1,5 @@
 *.class
-*.log
+#*.log
 
 # sbt specific
 .cache/
@@ -18,4 +18,4 @@ project/plugins/project/
 .idea
 
 # crawling data
-discussion
+#discussion

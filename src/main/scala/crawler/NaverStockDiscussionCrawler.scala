@@ -111,19 +111,17 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
         if (discussion.previousDiscussionUrl.length < 1) {
           dataWaitTime += 1
         } else {
-          //          println(discussion)
+
           val discussionDate = discussion.date.split("T")(0).replace(".", "_")
           dataWaitTime = 1
           url = "/item/" + discussion.previousDiscussionUrl
 
           discussionCount += 1
-          if (discussionCount >= fileSplitThreshold || fileName.equals("init")) {
+          if (!discussionDate.equals(fileName) || fileName.equals("init")) {
             csvWriter.close()
             csvWriter = initOutputFileWriter(discussionDate)
             fileName = discussionDate
             discussionCount = 0
-
-
 
           }
 
