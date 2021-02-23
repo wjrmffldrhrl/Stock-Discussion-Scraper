@@ -127,7 +127,6 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
 
           lastUrlWriter.write(url, 0, url.length)
 
-          println(discussion.toCsv)
           csvWriter.write(discussion.toCsv + "\n")
           csvWriter.flush()
 
