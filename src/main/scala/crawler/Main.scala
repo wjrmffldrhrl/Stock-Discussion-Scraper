@@ -1,6 +1,7 @@
 package crawler
 
-import crawler.manager.file.GoogleFileUploader
+import crawler.manager.file.{GoogleFileUploader, StockDiscussionFileCreator}
+
 import scala.io.Source
 
 object Main {
@@ -10,7 +11,7 @@ object Main {
     try {
       Source.fromFile("stock_list.txt").getLines().filter(line => !line.startsWith("#")).foreach(itemCode => {
 
-        val stockCrawler = new NaverStockDiscussionCrawler(itemCode, 300, new GoogleFileUploader(itemCode, 10000))
+        val stockCrawler = new NaverStockDiscussionCrawler(itemCode, 300, new StockDiscussionFileCreator(itemCode))
         stockCrawler.setRunDirection("frontward")
 
         new Thread(stockCrawler)

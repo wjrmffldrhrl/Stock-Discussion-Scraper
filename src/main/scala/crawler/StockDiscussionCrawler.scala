@@ -2,12 +2,12 @@ package crawler
 
 trait StockDiscussionCrawler extends Runnable{
 
-  def work: Unit
+  def work()
 
   override def run(): Unit = {
     println("run crawler")
-    work
-
+    work()
+    println("end crawler")
   }
 
 

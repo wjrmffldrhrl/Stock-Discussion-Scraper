@@ -1,6 +1,6 @@
 package crawler
 
-import crawler.manager.file.FileManager
+import crawler.manager.file.{StockDiscussionProcessor, FileManager}
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL._
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
@@ -16,12 +16,12 @@ import scala.util.Using
  *
  * @param itemCode 타겟 종목 코드
  */
-class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager: FileManager) extends StockDiscussionCrawler {
+class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, discussionProcessor: StockDiscussionProcessor) extends StockDiscussionCrawler {
 
   private val mainUrl: String = "https://finance.naver.com"
   private val boardUrl: String = "/item/board.nhn"
   private val browser = JsoupBrowser()
-  private val fileSplitThreshold = 10000
+
   private var runDirection = "backward"
 
   def setRunDirection(runDirection: String): Unit = {
@@ -92,12 +92,6 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
   def runFrontward(): Unit = {
 
     var url = getStartDiscussionUrl
-
-    new Thread(fileManager).start()
-
-    var fileName = "init"
-    var csvWriter = initOutputFileWriter(fileName)
-    var discussionCount = 0
     var dataWaitTime = 1
     val lastUrlWriter = new BufferedWriter(new FileWriter("discussion/" + this.itemCode + "/last_url.log"))
 
@@ -111,28 +105,13 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
         if (discussion.previousDiscussionUrl.length < 1) {
           dataWaitTime += 1
         } else {
-
-          val discussionDate = discussion.date.split("T")(0).replace(".", "_")
-          dataWaitTime = 1
           url = "/item/" + discussion.previousDiscussionUrl
-
-          discussionCount += 1
-          if (!discussionDate.equals(fileName) || fileName.equals("init")) {
-            csvWriter.close()
-            csvWriter = initOutputFileWriter(discussionDate)
-            fileName = discussionDate
-            discussionCount = 0
-
-          }
-
-          lastUrlWriter.write(url, 0, url.length)
-
-          csvWriter.write(discussion.toCsv + "\n")
-          csvWriter.flush()
+          discussionProcessor.discussionProcessing(discussion)
 
           Using(new BufferedWriter(new FileWriter("discussion/" + this.itemCode + "/last_url.log"))) {
             writer => writer.write(url + "\n")
           }
+
 
         }
 
@@ -146,47 +125,29 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
 
     }
 
-    csvWriter.close()
     lastUrlWriter.close()
   }
 
   def runBackward(): Unit = {
     var url = getStartDiscussionUrl
 
-    new Thread(fileManager).start()
-
-    var fileName = "init"
-    var csvWriter = initOutputFileWriter(fileName)
-    var discussionCount = 0
     while (url.length > 1) {
 
       try {
         Thread.sleep(cycleTime)
 
         val discussion = getDiscussion(url)
-        val discussionDate = discussion.date.split("T")(0).replace(".", "_")
-
 
         if (discussion.nextDiscussionUrl.length < 1) {
           url = ""
         } else {
           url = "/item/" + discussion.nextDiscussionUrl
-        }
-
-        discussionCount += 1
-        if (discussionCount >= fileSplitThreshold || fileName.equals("init")) {
-          csvWriter.close()
-
-          csvWriter = initOutputFileWriter(discussionDate)
-          fileName = discussionDate
-          discussionCount = 0
+          discussionProcessor.discussionProcessing(discussion)
 
           Using(new BufferedWriter(new FileWriter("discussion/" + this.itemCode + "/last_url.log"))) {
-            writer => writer.write(url + "\r\n")
+            writer => writer.write(url + "\n")
           }
         }
-
-        csvWriter.write(discussion.toCsv + "\n")
 
       } catch {
         case e: Exception => println(LocalDateTime.now() + "[Error in  " + this.itemCode + " : " + url + "] " + e)
@@ -194,28 +155,10 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, fileManager:
 
     }
 
-    csvWriter.close()
 
   }
 
-  private def initOutputFileWriter(fileName: String): BufferedWriter = {
 
-    val directoryPath = "discussion/" + this.itemCode
-
-    val directory = new File(directoryPath)
-
-    if (!directory.exists()) {
-      directory.mkdirs()
-    }
-
-    val csv = new File(directoryPath + "/" + fileName + ".csv")
-
-    val writer = new BufferedWriter(new FileWriter(csv, true))
-    writer.write("date,title,content,url,previousDiscussionUrl,nextDiscussionUrl" + "\n")
-
-
-    writer
-  }
 
 
   override def work: Unit = {
