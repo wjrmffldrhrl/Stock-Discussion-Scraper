@@ -12,7 +12,21 @@
 
 # How to run
 
-```shell
-cd stock_discussion_crawler
-sbt run
+## Edit stock_list.txt
+If you don't crawling item, Use `#`
+
+```text
+005930
+#000660
+#051910
+#005935
+#035420
+#006400
+#207940
+#005380
+#068270
+#035720
 ```
+
+## Run shell
+`sh start.sh`
