@@ -21,30 +21,83 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, discussionPr
   private val mainUrl: String = "https://finance.naver.com"
   private val boardUrl: String = "/item/board.nhn"
   private val browser = JsoupBrowser()
-
   private var runDirection = "backward"
 
-  def setRunDirection(runDirection: String): Unit = {
-    this.runDirection = runDirection
+  def runFrontward(): Unit = {
+
+    var url = getStartDiscussionUrl
+    var dataWaitTime = 1
+
+    while (true) {
+      try {
+        Thread.sleep(cycleTime * dataWaitTime)
+
+        val discussion = getDiscussion(url)
+
+        if (discussion.previousDiscussionUrl.length < 1) {
+          dataWaitTime += 1
+        } else {
+          url = "/item/" + discussion.previousDiscussionUrl
+          discussionProcessor.discussionProcessing(discussion)
+
+          Using(new BufferedWriter(new FileWriter("discussion/" + this.itemCode + "/last_url.log"))) {
+            writer => writer.write(url + "\n")
+          }
+
+        }
+
+      } catch {
+        case e: Exception => {
+          println(LocalDateTime.now() + "[Error in  " + this.itemCode + " : " + url + "] " + e)
+          new File("discussion/" + this.itemCode + "/last_url.log").delete()
+          url = getStartDiscussionUrl
+        }
+      }
+    }
   }
 
+  def runBackward(): Unit = {
+    var url = getStartDiscussionUrl
+
+    while (url.length > 1) {
+      try {
+        Thread.sleep(cycleTime)
+
+        val discussion = getDiscussion(url)
+
+        if (discussion.nextDiscussionUrl.length < 1) {
+          url = ""
+        } else {
+          url = "/item/" + discussion.nextDiscussionUrl
+          discussionProcessor.discussionProcessing(discussion)
+
+          Using(new BufferedWriter(new FileWriter("discussion/" + this.itemCode + "/last_url.log"))) {
+            writer => writer.write(url + "\n")
+          }
+        }
+      } catch {
+        case e: Exception => println(LocalDateTime.now() + "[Error in  " + this.itemCode + " : " + url + "] " + e)
+      }
+    }
+  }
 
   def getStartDiscussionUrl: String = {
-
     try {
-
       return Source.fromFile("discussion/" + this.itemCode + "/last_url.log").getLines().next()
-
     } catch {
       case e: FileNotFoundException => println("last url file not found")
       case e: NoSuchElementException => println("last url file is empty")
     }
 
     browser.parseString(
-      getScript(
-        this.mainUrl + this.boardUrl + "?code=" + this.itemCode
-      )
+      getScript(this.mainUrl + this.boardUrl + "?code=" + this.itemCode)
     ) >> attr("href")("a[onclick=return singleSubmitCheck();]")
+  }
+
+  private def getScript(url: String): String = {
+    val request = requests.get(url, headers = Map[String, String]("referer" -> url))
+
+    new String(request.bytes, "EUC-KR")
   }
 
   def getDiscussion(discussionUrl: String): StockDiscussion = {
@@ -81,96 +134,16 @@ class NaverStockDiscussionCrawler(itemCode: String, cycleTime: Int, discussionPr
 
   }
 
-  private def getScript(url: String): String = {
-    val request = requests.get(url,
-      headers = Map[String, String]("referer" -> url)
-    )
-
-    new String(request.bytes, "EUC-KR")
+  def setRunDirection(runDirection: String): Unit = {
+    this.runDirection = runDirection
   }
 
-  def runFrontward(): Unit = {
-
-    var url = getStartDiscussionUrl
-    var dataWaitTime = 1
-    val lastUrlWriter = new BufferedWriter(new FileWriter("discussion/" + this.itemCode + "/last_url.log"))
-
-    while (true) {
-
-      try {
-        Thread.sleep(cycleTime * dataWaitTime)
-
-        val discussion = getDiscussion(url)
-
-        if (discussion.previousDiscussionUrl.length < 1) {
-          dataWaitTime += 1
-        } else {
-          url = "/item/" + discussion.previousDiscussionUrl
-          discussionProcessor.discussionProcessing(discussion)
-
-          Using(new BufferedWriter(new FileWriter("discussion/" + this.itemCode + "/last_url.log"))) {
-            writer => writer.write(url + "\n")
-          }
-
-
-        }
-
-      } catch {
-        case e: Exception => {
-          println(LocalDateTime.now() + "[Error in  " + this.itemCode + " : " + url + "] " + e)
-          new File("discussion/" + this.itemCode + "/last_url.log").delete()
-          url = getStartDiscussionUrl
-        }
-      }
-
-    }
-
-    lastUrlWriter.close()
-  }
-
-  def runBackward(): Unit = {
-    var url = getStartDiscussionUrl
-
-    while (url.length > 1) {
-
-      try {
-        Thread.sleep(cycleTime)
-
-        val discussion = getDiscussion(url)
-
-        if (discussion.nextDiscussionUrl.length < 1) {
-          url = ""
-        } else {
-          url = "/item/" + discussion.nextDiscussionUrl
-          discussionProcessor.discussionProcessing(discussion)
-
-          Using(new BufferedWriter(new FileWriter("discussion/" + this.itemCode + "/last_url.log"))) {
-            writer => writer.write(url + "\n")
-          }
-        }
-
-      } catch {
-        case e: Exception => println(LocalDateTime.now() + "[Error in  " + this.itemCode + " : " + url + "] " + e)
-      }
-
-    }
-
-
-  }
-
-
-
-
-  override def work: Unit = {
+  override def work(): Unit = {
     println(s"run $runDirection with " + itemCode)
 
-    if (this.runDirection.equals("backward")) {
-      runBackward()
-    } else if (this.runDirection.equals("frontward")) {
-      runFrontward()
-    } else {
-      throw new RuntimeException(s"Run direction exception with [$runDirection]")
-    }
-
+    if (this.runDirection.equals("backward")) { runBackward() }
+    else if (this.runDirection.equals("frontward")) { runFrontward() }
+    else { throw new RuntimeException(s"Run direction exception with [$runDirection]") }
   }
+
 }

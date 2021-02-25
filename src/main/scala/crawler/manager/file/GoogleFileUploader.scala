@@ -9,7 +9,7 @@ import java.time.LocalDateTime
  * @param itemCode 해당 파일 처리 클래스가 사용되는 종목 코드
  * @param cycleTime 해당 파일 처리 클래스가 동작하는 주기
  */
-class GoogleFileUploader(itemCode: String, inputCycleTime: Int) extends FileManager {
+class GoogleFileUploader(itemCodes: Array[String], inputCycleTime: Int) extends FileManager {
 
 
   private val targetDirectoryPath = "discussion/" + itemCode
