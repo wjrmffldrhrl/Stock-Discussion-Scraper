@@ -24,7 +24,9 @@ class GoogleFileUploader(private val itemCodes: Array<String>, override val cycl
         itemCodes.forEach {
             val targetDirectoryPath = "discussion/$it"
             val targetDirectory = File(targetDirectoryPath)
-            val otherFileNames = targetDirectory.list().filter { fileName -> fileName.endsWith(".csv") }
+            val otherFileNames = targetDirectory.list()
+                .filter { fileName -> fileName.endsWith(".csv") }
+                .filter { fileName -> !fileName.contains("init") }
 
             if (otherFileNames.size >= 2) {
                 otherFileNames.sorted()
