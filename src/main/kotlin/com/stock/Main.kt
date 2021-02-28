@@ -7,7 +7,6 @@ import com.stock.manager.file.GoogleFileUploader
 import java.io.BufferedReader
 import java.io.FileReader
 
-
 fun main() {
 
     val itemCodes = ArrayList<String>()

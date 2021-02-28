@@ -18,21 +18,4 @@ class GoogleDriveManagerTest {
             .forEach{file -> println(file.name + " " + file.id)}
 
     }
-
-    @Test
-    fun testFileUpload() {
-        println(GoogleDriveManager.uploadFile( File("discussion/005930/test.csv")))
-
-    }
-
-    @Test
-    fun testCreateDirectory() {
-        println(GoogleDriveManager.createDirectory("test"))
-    }
-
-    @Test
-    fun testFindFile() {
-        println(GoogleDriveManager.findDirectory("005930"))
-    }
-
 }

@@ -27,6 +27,9 @@ dependencies {
     implementation("com.google.oauth-client:google-oauth-client-jetty:1.23.0")
     implementation("com.google.apis:google-api-services-drive:v3-rev110-1.23.0")
 
+
+
+
 }
 
 tasks.test {
@@ -43,4 +46,27 @@ compileKotlin.kotlinOptions {
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
     jvmTarget = "1.8"
+}
+
+
+tasks.named<Jar>("jar") {
+    manifest {
+        // attributes(mapOf("Main-Class" to "com.voce.protoss.ProtossMain"))
+        attributes["Main-Class"] = "com.stock.MainKt"
+        attributes["Gradle-Version"] = "Gradle " + getProject().getGradle().getGradleVersion()
+        attributes["Created-By"] = "Java " + JavaVersion.current()
+        attributes["Class-Path"] = configurations.runtimeClasspath.get().filter {
+            it.name.endsWith(".jar")
+
+        }.joinToString(separator=" ") { "lib/" + it.name }
+
+
+    }
+    from(sourceSets.main.get().output)
+
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
+
 }
