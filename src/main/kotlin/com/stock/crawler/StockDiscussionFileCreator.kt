@@ -25,7 +25,7 @@ class StockDiscussionFileCreator(itemCode: String) : StockDiscussionProcessor {
 
     private fun initOutputFileWriter(fileName: String): BufferedWriter {
 
-        println("saveFile : $fileName")
+        println("saveFile $directoryPath/$fileName")
         val csv = File("$directoryPath/$fileName$fileExtension")
         val writer = BufferedWriter(FileWriter(csv, true))
 

@@ -100,23 +100,28 @@ class NaverStockDiscussionCrawler(private val itemCode: String, override val cyc
         val script = KoreanRequests.getScript("$mainUrl$boardUrl?code=$itemCode")
 
         return Jsoup.parse(script)
-            .getElementsByAttributeValue("onclick", "return singleSubmitCheck();")[0].attr("href")
+            .getElementsByAttributeValue("onclick", "return singleSubmitCheck();").first().attr("href")
 
     }
 
     override fun work() {
         println("run $runDirection with $itemCode")
 
-        when (this.runDirection) {
-            "backward" -> {
-                runBackward()
+        try {
+
+            when (this.runDirection) {
+                "backward" -> {
+                    runBackward()
+                }
+                "frontward" -> {
+                    runFrontward()
+                }
+                else -> {
+                    throw RuntimeException("Run direction exception with [$runDirection]")
+                }
             }
-            "frontward" -> {
-                runFrontward()
-            }
-            else -> {
-                throw RuntimeException("Run direction exception with [$runDirection]")
-            }
+        } catch (e: RuntimeException) {
+            println("Error in crawler $itemCode : $e")
         }
     }
 }

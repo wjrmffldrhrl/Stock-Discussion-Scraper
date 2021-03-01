@@ -12,11 +12,13 @@ fun main() {
     val itemCodes = ArrayList<String>()
 
     BufferedReader(FileReader("stock_list.txt")).useLines {
-        it.filter { line -> !line.startsWith("#") }.forEach { useItemCode ->  itemCodes.add(useItemCode)}
+        it.filter { line -> !line.startsWith("#") }
+            .filter { line -> line.isNotEmpty() }
+            .forEach { useItemCode -> itemCodes.add(useItemCode) }
     }
 
     itemCodes.forEach { itemCode ->
-        Thread(NaverStockDiscussionCrawler(itemCode, 1000, StockDiscussionFileCreator("005930"))).start()
+        Thread(NaverStockDiscussionCrawler(itemCode, 1000, StockDiscussionFileCreator(itemCode))).start()
     }
 
 
