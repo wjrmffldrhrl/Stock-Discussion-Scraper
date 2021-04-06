@@ -4,6 +4,7 @@ import com.stock.StockDiscussion
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
+import java.time.LocalDateTime
 
 class StockDiscussionFileCreator(itemCode: String) : StockDiscussionProcessor {
 
@@ -25,7 +26,7 @@ class StockDiscussionFileCreator(itemCode: String) : StockDiscussionProcessor {
 
     private fun initOutputFileWriter(fileName: String): BufferedWriter {
 
-        println("saveFile $directoryPath/$fileName")
+        println("[${LocalDateTime.now()}] saveFile $directoryPath/$fileName")
         val csv = File("$directoryPath/$fileName$fileExtension")
         val writer = BufferedWriter(FileWriter(csv, true))
 

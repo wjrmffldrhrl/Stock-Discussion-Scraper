@@ -6,7 +6,8 @@ import org.jsoup.Jsoup
 import java.io.*
 import java.time.LocalDateTime
 
-class NaverStockDiscussionCrawler(private val itemCode: String, override val cycleTime: Int, private val stockDiscussionProcessor:StockDiscussionProcessor = StockDiscussionPrinter()) : StockDiscussionCrawler {
+class  NaverStockDiscussionCrawler(private val itemCode: String, override val cycleTime: Int,
+                                   private val stockDiscussionProcessor:StockDiscussionProcessor = StockDiscussionPrinter()) : StockDiscussionCrawler {
 
     private val mainUrl: String = "https://finance.naver.com"
     private val boardUrl: String = "/item/board.nhn"
@@ -21,12 +22,14 @@ class NaverStockDiscussionCrawler(private val itemCode: String, override val cyc
 
                 val discussion = getDiscussion(url)
 
-                if (discussion.previousDiscussionUrl.length < 1) {
+                // 최신 discussion이 없을 때 대기 시간을 늘린다.
+                if (discussion.previousDiscussionUrl.isEmpty()) {
                     dataWaitTime += 1
                 } else {
                     url = "/item/" + discussion.previousDiscussionUrl
                     stockDiscussionProcessor.processing(discussion)
 
+                    println(discussion.toCsv())
                     BufferedWriter(FileWriter("discussion/" + this.itemCode + "/last_url.log")).use { writer ->
                         writer.write(url)
                     }
@@ -92,9 +95,9 @@ class NaverStockDiscussionCrawler(private val itemCode: String, override val cyc
                 }
             }
         } catch (e: FileNotFoundException) {
-            println("Last url file not found")
+            println("[${LocalDateTime.now()}] Last url file not found")
         } catch (e: NullPointerException) {
-            println("Last url file is empty")
+            println("[${LocalDateTime.now()}] Last url file is empty")
         }
 
         val script = KoreanRequests.getScript("$mainUrl$boardUrl?code=$itemCode")
@@ -105,7 +108,7 @@ class NaverStockDiscussionCrawler(private val itemCode: String, override val cyc
     }
 
     override fun work() {
-        println("run $runDirection with $itemCode")
+        println("[${LocalDateTime.now()}] run $runDirection with $itemCode")
 
         try {
 
@@ -121,7 +124,7 @@ class NaverStockDiscussionCrawler(private val itemCode: String, override val cyc
                 }
             }
         } catch (e: RuntimeException) {
-            println("Error in crawler $itemCode : $e")
+            println("[${LocalDateTime.now()}] Error in crawler $itemCode : $e")
         }
     }
 }

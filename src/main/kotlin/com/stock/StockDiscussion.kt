@@ -9,6 +9,11 @@ class StockDiscussion(
     val nextDiscussionUrl: String
 ) {
 
-    fun toCsv() = "$date,$title,$content,$url,$previousDiscussionUrl,$nextDiscussionUrl"
+    fun toCsv(): String {
+        val title = this.title.replace(",", " ")
+        val content = this.content.replace(",", " ")
+
+        return "$date,$title,$content,$url,$previousDiscussionUrl,$nextDiscussionUrl"
+    }
     override fun toString() = "url : [$url] \n title : [$title] \n content: [$content] \n date: [$date] \n previousDiscussionUrl : [$previousDiscussionUrl] \n nextDiscussionUrl : [$nextDiscussionUrl]"
 }

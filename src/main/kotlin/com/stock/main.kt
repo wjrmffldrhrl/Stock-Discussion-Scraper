@@ -18,10 +18,13 @@ fun main() {
     }
 
     itemCodes.forEach { itemCode ->
-        Thread(NaverStockDiscussionCrawler(itemCode, 1000, StockDiscussionFileCreator(itemCode))).start()
+        Thread(NaverStockDiscussionCrawler(itemCode, 1000,
+            StockDiscussionFileCreator(itemCode))).start()
     }
 
 
 
-    Thread(GoogleFileUploader(itemCodes.toTypedArray(), 1000 * 60 * 60 * 3)).start()
+
+
+//    Thread(GoogleFileUploader(itemCodes.toTypedArray(), 1000 * 60 * 60 * 3)).start()
 }

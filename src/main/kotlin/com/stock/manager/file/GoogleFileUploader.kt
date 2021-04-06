@@ -40,7 +40,7 @@ class GoogleFileUploader(private val itemCodes: Array<String>, override val cycl
                         otherFileNames.last()
                     }
                     else -> {
-                        throw RuntimeException("Invalid priority : [$uploadPriority]")
+                        throw RuntimeException("[${LocalDateTime.now()}] Invalid priority : [$uploadPriority]")
                     }
                 }
                 uploadFile(targetDirectoryPath + "/${targetFileName}")

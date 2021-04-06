@@ -19,7 +19,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
     implementation(kotlin("stdlib-jdk8"))
 
-    implementation("org.jsoup:jsoup:1.10.2")
+    implementation("org.jsoup:jsoup:1.13.1")
 
     implementation("com.google.api-client:google-api-client:1.23.0")
     implementation("com.google.api-client:google-api-client-java6:1.31.2")
