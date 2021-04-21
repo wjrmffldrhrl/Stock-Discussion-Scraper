@@ -1,9 +1,7 @@
 package com.stock
 
-import com.google.common.collect.Lists
 import com.stock.crawler.NaverStockDiscussionCrawler
 import com.stock.crawler.StockDiscussionFileCreator
-import com.stock.manager.file.GoogleFileUploader
 import java.io.BufferedReader
 import java.io.FileReader
 

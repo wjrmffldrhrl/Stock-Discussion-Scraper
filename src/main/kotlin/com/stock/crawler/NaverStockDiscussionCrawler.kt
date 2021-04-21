@@ -32,7 +32,7 @@ class NaverStockDiscussionCrawler(
 
                 // 최신 discussion이 없을 때 대기 시간을 늘린다.
                 if (discussion.previousDiscussionUrl.isEmpty()) {
-                    dataWaitTime += 1
+                    dataWaitTime *= 2
                     logger.info("No data now. Increase wait time to $dataWaitTime")
                     continue
                 }
@@ -40,7 +40,7 @@ class NaverStockDiscussionCrawler(
                 url = "/item/" + discussion.previousDiscussionUrl
                 stockDiscussionProcessor.processing(discussion)
 
-                println(discussion.toCsv())
+//                println(discussion.toCsv())
                 BufferedWriter(FileWriter("discussion/" + this.itemCode + "/last_url.log")).use { writer ->
                     writer.write(url)
                 }
@@ -122,7 +122,7 @@ class NaverStockDiscussionCrawler(
     }
 
     override fun work() {
-        println("[${LocalDateTime.now()}] run $runDirection with $itemCode")
+        logger.info(" run $runDirection with $itemCode")
 
         try {
 
@@ -138,7 +138,7 @@ class NaverStockDiscussionCrawler(
                 }
             }
         } catch (e: RuntimeException) {
-            println("[${LocalDateTime.now()}] Error in crawler $itemCode : $e")
+            logger.error("Error in crawler $itemCode : $e")
         }
     }
 }

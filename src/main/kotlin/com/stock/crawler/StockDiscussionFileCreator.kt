@@ -1,6 +1,8 @@
 package com.stock.crawler
 
 import com.stock.utils.StockDiscussion
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
@@ -10,7 +12,7 @@ class StockDiscussionFileCreator(itemCode: String) : StockDiscussionProcessor {
 
     private val directoryPath = "discussion/$itemCode"
     private val directory = File(directoryPath)
-
+    private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
     init {
 
         if (!directory.exists()) {
@@ -26,12 +28,12 @@ class StockDiscussionFileCreator(itemCode: String) : StockDiscussionProcessor {
 
     private fun initOutputFileWriter(fileName: String): BufferedWriter {
 
-        println("[${LocalDateTime.now()}] saveFile $directoryPath/$fileName")
+        logger.info("saveFile : $directoryPath/$fileName")
         val csv = File("$directoryPath/$fileName$fileExtension")
         val writer = BufferedWriter(FileWriter(csv, true))
 
         if (csv.name != "init.csv") {
-            writer.write("date,title,content,url,previousDiscussionUrl,nextDiscussionUrl" + "\n")
+            writer.write("date,title,content,url" + "\n")
         }
 
         return writer
