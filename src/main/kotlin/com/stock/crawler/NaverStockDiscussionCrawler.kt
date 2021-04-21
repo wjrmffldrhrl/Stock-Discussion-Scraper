@@ -33,6 +33,7 @@ class  NaverStockDiscussionCrawler(private val itemCode: String, override val cy
                     BufferedWriter(FileWriter("discussion/" + this.itemCode + "/last_url.log")).use { writer ->
                         writer.write(url)
                     }
+                    dataWaitTime = 1
 
                 }
 
