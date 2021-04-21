@@ -1,5 +1,6 @@
 package com.stock
 
+import com.stock.utils.KoreanRequests
 import org.junit.jupiter.api.Test
 
 class RequestsTest {

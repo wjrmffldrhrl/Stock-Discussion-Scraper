@@ -1,4 +1,4 @@
-package com.stock
+package com.stock.utils
 
 import java.net.HttpURLConnection
 import java.net.URL

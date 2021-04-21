@@ -1,21 +1,29 @@
 package com.stock.crawler
 
-import com.stock.KoreanRequests
-import com.stock.StockDiscussion
+import com.stock.utils.KoreanRequests
+import com.stock.utils.StockDiscussion
 import org.jsoup.Jsoup
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.*
 import java.time.LocalDateTime
 
-class  NaverStockDiscussionCrawler(private val itemCode: String, override val cycleTime: Int,
-                                   private val stockDiscussionProcessor:StockDiscussionProcessor = StockDiscussionPrinter()) : StockDiscussionCrawler {
+class NaverStockDiscussionCrawler(
+    private val itemCode: String, override val cycleTime: Int,
+    private val stockDiscussionProcessor: StockDiscussionProcessor = StockDiscussionPrinter()
+) : StockDiscussionCrawler {
 
     private val mainUrl: String = "https://finance.naver.com"
     private val boardUrl: String = "/item/board.nhn"
     private var runDirection = "frontward"
-
+    private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
     private fun runFrontward() {
+
         var url = getStartDiscussionUrl()
         var dataWaitTime = 1
+        logger.info("Start Naver Stock Discussion Crawling")
+
+
         while (url.isNotEmpty()) {
             try {
                 Thread.sleep((cycleTime * dataWaitTime).toLong())
@@ -25,23 +33,27 @@ class  NaverStockDiscussionCrawler(private val itemCode: String, override val cy
                 // 최신 discussion이 없을 때 대기 시간을 늘린다.
                 if (discussion.previousDiscussionUrl.isEmpty()) {
                     dataWaitTime += 1
-                } else {
-                    url = "/item/" + discussion.previousDiscussionUrl
-                    stockDiscussionProcessor.processing(discussion)
-
-                    println(discussion.toCsv())
-                    BufferedWriter(FileWriter("discussion/" + this.itemCode + "/last_url.log")).use { writer ->
-                        writer.write(url)
-                    }
-                    dataWaitTime = 1
-
+                    logger.info("No data now. Increase wait time to $dataWaitTime")
+                    continue
                 }
 
-            } catch(e : Exception) {
+                url = "/item/" + discussion.previousDiscussionUrl
+                stockDiscussionProcessor.processing(discussion)
 
-                    println(LocalDateTime.now().toString() + "[Error in  " + itemCode + " : " + url + "] ")
-                    File ("discussion/" + this.itemCode + "/last_url.log").delete()
-                    url = getStartDiscussionUrl()
+                println(discussion.toCsv())
+                BufferedWriter(FileWriter("discussion/" + this.itemCode + "/last_url.log")).use { writer ->
+                    writer.write(url)
+                }
+
+                // 데이터가 있을 경우 대기시간 초기화
+                dataWaitTime = 1
+
+
+            } catch (e: Exception) {
+
+                logger.error(LocalDateTime.now().toString() + "[Error in  " + itemCode + " : " + url + "] ")
+                File("discussion/" + this.itemCode + "/last_url.log").delete()
+                url = getStartDiscussionUrl()
 
             }
         }
@@ -56,7 +68,8 @@ class  NaverStockDiscussionCrawler(private val itemCode: String, override val cy
 
         val title = doc.select("strong[class=c p15]").attr("title")
         val content = doc.select("#body").text()
-        val date = doc.select("th[style=padding: 5px 14px 7px 0pt; border-bottom: 1px solid #E5E5E5;]").text().replace(" ", "T")
+        val date = doc.select("th[style=padding: 5px 14px 7px 0pt; border-bottom: 1px solid #E5E5E5;]").text()
+            .replace(" ", "T")
         val discussionUrlTags = doc.getElementsByTag("a")
         val nextPrevious = doc.select("span[class=p11 gray03]")
         val discussionUrls = discussionUrlTags.filter { url -> url.hasAttr("title") }
@@ -96,9 +109,9 @@ class  NaverStockDiscussionCrawler(private val itemCode: String, override val cy
                 }
             }
         } catch (e: FileNotFoundException) {
-            println("[${LocalDateTime.now()}] Last url file not found")
+            logger.debug("[${LocalDateTime.now()}] Last url file not found")
         } catch (e: NullPointerException) {
-            println("[${LocalDateTime.now()}] Last url file is empty")
+            logger.debug("[${LocalDateTime.now()}] Last url file is empty")
         }
 
         val script = KoreanRequests.getScript("$mainUrl$boardUrl?code=$itemCode")

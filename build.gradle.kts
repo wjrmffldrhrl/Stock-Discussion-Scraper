@@ -26,7 +26,7 @@ dependencies {
     implementation("com.google.oauth-client:google-oauth-client:1.31.4")
     implementation("com.google.oauth-client:google-oauth-client-jetty:1.23.0")
     implementation("com.google.apis:google-api-services-drive:v3-rev110-1.23.0")
-
+    implementation("org.slf4j:slf4j-api:1.7.30")
 
 
 

@@ -1,6 +1,6 @@
 package com.stock.crawler
 
-import com.stock.StockDiscussion
+import com.stock.utils.StockDiscussion
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
