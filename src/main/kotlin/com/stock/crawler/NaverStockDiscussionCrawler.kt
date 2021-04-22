@@ -6,6 +6,7 @@ import org.jsoup.Jsoup
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.*
+import java.net.UnknownHostException
 import java.time.LocalDateTime
 
 class NaverStockDiscussionCrawler(
@@ -99,24 +100,33 @@ class NaverStockDiscussionCrawler(
     }
 
     fun getStartDiscussionUrl(): String {
-
-        try {
-            BufferedReader(FileReader("discussion/$itemCode/last_url.log")).use {
-                val lastUrl: String = it.readLine()
-                if (lastUrl.length < 5) {
-                    return lastUrl
+        while (true) {
+            try {
+                BufferedReader(FileReader("discussion/$itemCode/last_url.log")).use {
+                    val lastUrl: String = it.readLine()
+                    if (lastUrl.length < 5) {
+                        return lastUrl
+                    }
                 }
+            } catch (e: FileNotFoundException) {
+                logger.debug("[${LocalDateTime.now()}] Last url file not found")
+            } catch (e: NullPointerException) {
+                logger.debug("[${LocalDateTime.now()}] Last url file is empty")
             }
-        } catch (e: FileNotFoundException) {
-            logger.debug("[${LocalDateTime.now()}] Last url file not found")
-        } catch (e: NullPointerException) {
-            logger.debug("[${LocalDateTime.now()}] Last url file is empty")
+
+            try {
+                val script = KoreanRequests.getScript("$mainUrl$boardUrl?code=$itemCode")
+
+                return Jsoup.parse(script)
+                    .getElementsByAttributeValue("onclick", "return singleSubmitCheck();").first().attr("href")
+
+            } catch (e: UnknownHostException) {
+                logger.error("[${LocalDateTime.now()}] Error in this url : $mainUrl$boardUrl?code=$itemCode \n ${e.printStackTrace()}")
+
+            }
+
+            Thread.sleep(cycleTime.toLong())
         }
-
-        val script = KoreanRequests.getScript("$mainUrl$boardUrl?code=$itemCode")
-
-        return Jsoup.parse(script)
-            .getElementsByAttributeValue("onclick", "return singleSubmitCheck();").first().attr("href")
 
     }
 
