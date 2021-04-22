@@ -16,13 +16,12 @@ class NaverStockDiscussionCrawler(
     private val mainUrl: String = "https://finance.naver.com"
     private val boardUrl: String = "/item/board.nhn"
     private var runDirection = "frontward"
-    private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
-    private fun runFrontward() {
+    private val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
+    private fun runFrontward() {
         var url = getStartDiscussionUrl()
         var dataWaitTime = 1
-        logger.info("Start Naver Stock Discussion Crawling")
-
+        logger.info("[${LocalDateTime.now()}] Start Naver Stock Discussion Crawling")
 
         while (url.isNotEmpty()) {
             try {
@@ -33,7 +32,7 @@ class NaverStockDiscussionCrawler(
                 // 최신 discussion이 없을 때 대기 시간을 늘린다.
                 if (discussion.previousDiscussionUrl.isEmpty()) {
                     dataWaitTime *= 2
-                    logger.info("No data now. Increase wait time to $dataWaitTime")
+                    logger.info("[${LocalDateTime.now()}] No data now. Increase wait time to $dataWaitTime")
                     continue
                 }
 
@@ -51,7 +50,7 @@ class NaverStockDiscussionCrawler(
 
             } catch (e: Exception) {
 
-                logger.error(LocalDateTime.now().toString() + "[Error in  " + itemCode + " : " + url + "] ")
+                logger.error("[${LocalDateTime.now()}] Error in  $itemCode : $url")
                 File("discussion/" + this.itemCode + "/last_url.log").delete()
                 url = getStartDiscussionUrl()
 
@@ -122,7 +121,7 @@ class NaverStockDiscussionCrawler(
     }
 
     override fun work() {
-        logger.info(" run $runDirection with $itemCode")
+        logger.info("[${LocalDateTime.now()}] run $runDirection with $itemCode")
 
         try {
 
@@ -138,7 +137,7 @@ class NaverStockDiscussionCrawler(
                 }
             }
         } catch (e: RuntimeException) {
-            logger.error("Error in crawler $itemCode : $e")
+            logger.error("[${LocalDateTime.now()}] Error in crawler $itemCode : $e")
         }
     }
 }

@@ -12,7 +12,7 @@ class StockDiscussionFileCreator(itemCode: String) : StockDiscussionProcessor {
 
     private val directoryPath = "discussion/$itemCode"
     private val directory = File(directoryPath)
-    private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
+    private val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
     init {
 
         if (!directory.exists()) {
@@ -28,7 +28,7 @@ class StockDiscussionFileCreator(itemCode: String) : StockDiscussionProcessor {
 
     private fun initOutputFileWriter(fileName: String): BufferedWriter {
 
-        logger.info("saveFile : $directoryPath/$fileName")
+        logger.info("[${LocalDateTime.now()}] saveFile : $directoryPath/$fileName")
         val csv = File("$directoryPath/$fileName$fileExtension")
         val writer = BufferedWriter(FileWriter(csv, true))
 
