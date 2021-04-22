@@ -33,7 +33,7 @@ class StockDiscussionFileCreator(itemCode: String) : StockDiscussionProcessor {
         val writer = BufferedWriter(FileWriter(csv, true))
 
         if (csv.name != "init.csv") {
-            writer.write("date,title,content,url" + "\n")
+            writer.write("date,url,title,content" + "\n")
         }
 
         return writer
