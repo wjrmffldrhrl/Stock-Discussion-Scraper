@@ -4,17 +4,12 @@
 # Target Site
 - Naver Stock Discussion
 
-# Version
-- Scala
-  - 2.13.4
-- SBT
-  - 1.4.7
-
 # How to run
 
 ## Edit stock_list.txt
 If you don't crawling item, Use `#`
 
+### stock_list.txt
 ```text
 005930
 #000660
