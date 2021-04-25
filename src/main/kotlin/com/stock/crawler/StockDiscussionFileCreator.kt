@@ -8,19 +8,22 @@ import java.io.File
 import java.io.FileWriter
 import java.time.LocalDateTime
 
-class StockDiscussionFileCreator(itemCode: String) : StockDiscussionProcessor {
+/**
+ * Create stock discussion files
+ *
+ * Run with Stock discussion crawler
+ */
+internal class StockDiscussionFileCreator(itemCode: String) : StockDiscussionProcessor {
 
+    private val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
     private val directoryPath = "discussion/$itemCode"
     private val directory = File(directoryPath)
-    private val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
     init {
-
         if (!directory.exists()) {
             directory.mkdirs()
         }
     }
 
-    private var processingCount = 0
     private var fileName = "init"
     private val fileExtension = ".csv"
     private var csvWriter = initOutputFileWriter(fileName)

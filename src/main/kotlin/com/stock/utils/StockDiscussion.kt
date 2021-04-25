@@ -15,5 +15,7 @@ class StockDiscussion(
 
         return "$date,$url,$title,$content"
     }
+
     override fun toString() = "url : [$url] \n title : [$title] \n content: [$content] \n date: [$date] \n previousDiscussionUrl : [$previousDiscussionUrl] \n nextDiscussionUrl : [$nextDiscussionUrl]"
+
 }

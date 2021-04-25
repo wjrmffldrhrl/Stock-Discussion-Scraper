@@ -21,6 +21,4 @@ fun main() {
         ).start()
     }
 
-
-//    Thread(GoogleFileUploader(itemCodes.toTypedArray(), 1000 * 60 * 60 * 3)).start()
 }

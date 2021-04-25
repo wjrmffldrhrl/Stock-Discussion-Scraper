@@ -22,11 +22,7 @@ class StockDiscussionTest {
     }
 
     @Test
-    fun testGetStartDiscussion() {
-        val itemCode = "005930"
-
-        println(NaverStockDiscussionCrawler(itemCode, 1000, StockDiscussionFileCreator(itemCode)).getStartDiscussionUrl())
-
-
+    fun test() {
     }
+
 }

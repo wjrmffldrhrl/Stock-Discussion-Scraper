@@ -14,10 +14,35 @@ class NaverStockDiscussionCrawler(
     private val stockDiscussionProcessor: StockDiscussionProcessor = StockDiscussionPrinter()
 ) : StockDiscussionCrawler {
 
+    private val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
     private val mainUrl: String = "https://finance.naver.com"
     private val boardUrl: String = "/item/board.nhn"
     private var runDirection = "frontward"
-    private val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
+
+    override fun work() {
+        logger.info("[${LocalDateTime.now()}] run $runDirection with $itemCode")
+
+        try {
+
+            when (this.runDirection) {
+                "backward" -> {
+                    runBackward()
+                }
+                "frontward" -> {
+                    runFrontward()
+                }
+                else -> {
+                    throw RuntimeException("Run direction exception with [$runDirection]")
+                }
+            }
+        } catch (e: RuntimeException) {
+            logger.error("[${LocalDateTime.now()}] Error in crawler $itemCode : $e")
+        }
+    }
+
+    private fun runBackward() {
+        TODO("Not yet implemented")
+    }
 
     private fun runFrontward() {
         var url = getStartDiscussionUrl()
@@ -95,10 +120,6 @@ class NaverStockDiscussionCrawler(
 
     }
 
-    private fun runBackward() {
-        TODO("Not yet implemented")
-    }
-
     fun getStartDiscussionUrl(): String {
         while (true) {
             try {
@@ -128,26 +149,5 @@ class NaverStockDiscussionCrawler(
             Thread.sleep(cycleTime.toLong())
         }
 
-    }
-
-    override fun work() {
-        logger.info("[${LocalDateTime.now()}] run $runDirection with $itemCode")
-
-        try {
-
-            when (this.runDirection) {
-                "backward" -> {
-                    runBackward()
-                }
-                "frontward" -> {
-                    runFrontward()
-                }
-                else -> {
-                    throw RuntimeException("Run direction exception with [$runDirection]")
-                }
-            }
-        } catch (e: RuntimeException) {
-            logger.error("[${LocalDateTime.now()}] Error in crawler $itemCode : $e")
-        }
     }
 }
