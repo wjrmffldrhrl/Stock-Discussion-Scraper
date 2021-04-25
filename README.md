@@ -1,5 +1,9 @@
+
 # Stock Discussion Crawler
-주식 토론방 게시글 크롤러
+![Screen Shot 2021-04-25 at 23 30 28 PM](https://user-images.githubusercontent.com/49122299/115998561-c0e0f800-a622-11eb-9ad9-156bdfbc2e9b.png)  
+
+종목 토론방 게시글 크롤러
+
 
 # Environment
 ### OS
