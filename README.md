@@ -1,7 +1,10 @@
 # Stock Discussion Crawler
 주식 토론방 게시글 크롤러
 
-# Verison
+# Environment
+### OS
+- Mac OS Big Sur 11.2.3
+- Ubuntu 20.04.1
 ### JDK
 OpenJDK 1.8.0_282
 ### Docker
