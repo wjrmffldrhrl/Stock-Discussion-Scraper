@@ -57,7 +57,11 @@ class NaverStockDiscussionCrawler(
 
                 // 최신 discussion이 없을 때 대기 시간을 늘린다.
                 if (discussion.previousDiscussionUrl.isEmpty()) {
-                    dataWaitTime *= 2
+
+                    if (dataWaitTime < 4096) {
+                        dataWaitTime *= 2
+                    }
+
                     logger.info("[${LocalDateTime.now()}] No data now. Increase wait time to $dataWaitTime")
                     continue
                 }
