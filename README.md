@@ -3,7 +3,8 @@
 
 # Environment
 ### OS
-Mac OS Big Sur 11.2.3
+- Mac OS Big Sur 11.2.3
+- Ubuntu 20.04.1
 ### JDK
 OpenJDK 1.8.0_282
 ### Docker
