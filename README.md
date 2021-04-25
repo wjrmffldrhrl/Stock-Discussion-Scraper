@@ -2,7 +2,11 @@
 주식 토론방 게시글 크롤러
 
 # Verison
+### JDK
 OpenJDK 1.8.0_282
+### Docker
+Docker version 20.10.5
+
 
 # Target Site
 현재 네이버 주식 토론방 게시글만 크롤링 가능합니다.
