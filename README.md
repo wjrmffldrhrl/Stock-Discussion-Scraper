@@ -52,3 +52,14 @@ date,title,url,content
 해당 프로젝트를 빌드하여 `.jar`파일을 생성하거나 IDE 환경에서 `main.kt`를 실행합니다.  
 `.jar` 형태로 빌드할 시 `stock_list.txt` 파일이 같은 경로에 존재해야 하며 IDE에서 실행시에는 프로젝트 root 경로에 `stock_list.txt` 파일이 존재해야 합니다.  
 
+# Docker
+도커 환경도 구성해두었습니다.  
+
+새로 빌드한 크롤러를 도커에서 동작시키고 싶다면 `run_docker_crawler.sh`를 실행시켜주시고 기존에 제가 빌드한 크롤러를 사용하고싶으시다면 `run_docker_rawler_without_build.sh`를 실행시켜주세요  
+
+다만, `gradlew`를 경유하므로 새로 빌드하고 싶으신 분들은 Mac이나 Linux환경에서 하시거나 `.sh`파일 내부 `gradlew`를 `gradlew.bat`로 변경해주셔야 합니다.  
+
+성공적으로 도커가 빌드되고 컨테이너가 실행된다면 프로젝트 루트 디렉터리에 `vol`디렉터리가 생성되고 해당 디렉터리가 컨테이너의 볼륨으로 지정되어 크롤링 데이터들이 내부에 생성 될 것입니다.  
+
+도커로 실행 시 로그파일도 `YYYY-MM-DD_crawler.log`형태로 생성됩니다.  
+
