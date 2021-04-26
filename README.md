@@ -37,40 +37,44 @@ date,title,url,content
 2021.04.25T13:23,https://finance.naver.com/item/board_read.nhn?code=005930&nid=173153449&st=&sw=&page=1,▶▷ 급등주 리딩방 추천 ◁◀,https://bit.ly/3vgVP5R 1000 -> 4700 ^^
 ```
 # How to run
+바로 실행하시려면 Docker와 JDK(1.8 이상)가 설치되어있어야 합니다.
+### for mac or linux
+```shell
+git clone https://github.com/wjrmffldrhrl/stock_discussion_crawler.git
+
+cd stock_discussion_crawler
+
+sh run_docker_crawler.sh
+```
+
+### for window
+준비중...
 
 ## Edit stock_list.txt
-크롤링 하고 싶은 종목의 종목 코드를 `stock_list.txt`파일에 입력합니다.  
-입력되는 형태는 아래와 같습니다.  
-#으로 시작되는 아이템 코드는 크롤링 하지 않습니다.  
+크롤링 하고 싶은 종목의 종목 코드를 `stock_list.txt`파일에 입력합니다.
+지금은 시가총액 상위 10개 종목의 코드만 `stock_list.txt` 파일에 입력되어있습니다.
+
+`#`으로 시작되는 아이템 코드는 크롤링 하지 않습니다.  
 
 ### stock_list.txt
 ```text
 005930
-#000660
-#051910
-#005935
-#035420
-#006400
-#207940
-#005380
-#068270
-#035720
+000660
+051910
+005935
+035420
+006400
+207940
+005380
+068270
+035720
+#002501 크롤링 X
 ```  
 
 크롤링 하는 종목당 한 개의 크롤러가 쓰레드로 생성되고 실행됩니다.  
 
-## Run project
-해당 프로젝트를 빌드하여 `.jar`파일을 생성하거나 IDE 환경에서 `main.kt`를 실행합니다.  
-`.jar` 형태로 빌드할 시 `stock_list.txt` 파일이 같은 경로에 존재해야 하며 IDE에서 실행시에는 프로젝트 root 경로에 `stock_list.txt` 파일이 존재해야 합니다.  
-
 # Docker
-도커 환경도 구성해두었습니다.  
+성공적으로 도커가 빌드되고 컨테이너가 실행된다면 프로젝트 루트 디렉터리에 `vol`디렉터리가 생성되고 해당 디렉터리가 컨테이너의 볼륨으로 지정되어 크롤링 데이터들과 로그 파일(`YYYY-MM-DD_crawler.log`)이 생성됩니다.  
 
-새로 빌드한 크롤러를 도커에서 동작시키고 싶다면 `run_docker_crawler.sh`를 실행시켜주시고 기존에 제가 빌드한 크롤러를 사용하고싶으시다면 `run_docker_rawler_without_build.sh`를 실행시켜주세요  
-
-다만, `gradlew`를 경유하므로 새로 빌드하고 싶으신 분들은 Mac이나 Linux환경에서 하시거나 `.sh`파일 내부 `gradlew`를 `gradlew.bat`로 변경해주셔야 합니다.  
-
-성공적으로 도커가 빌드되고 컨테이너가 실행된다면 프로젝트 루트 디렉터리에 `vol`디렉터리가 생성되고 해당 디렉터리가 컨테이너의 볼륨으로 지정되어 크롤링 데이터들이 내부에 생성 될 것입니다.  
-
-도커로 실행 시 로그파일도 `YYYY-MM-DD_crawler.log`형태로 생성됩니다.  
+  
 

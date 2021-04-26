@@ -1,4 +1,4 @@
-mv ./stock_list.txt ./docker_crawler
+cp ./stock_list.txt ./docker_crawler
 
 docker build --tag crawler:1.0 ./docker_crawler
 mkdir ./vol

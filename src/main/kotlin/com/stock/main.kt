@@ -17,7 +17,7 @@ fun main() {
 
     itemCodes.forEach { itemCode ->
         Thread(
-            NaverStockDiscussionCrawler(itemCode, 1000, StockDiscussionFileCreator(itemCode))
+            NaverStockDiscussionCrawler(itemCode, 1000, StockDiscussionFileCreator(itemCode)), "Crawler $itemCode"
         ).start()
     }
 
