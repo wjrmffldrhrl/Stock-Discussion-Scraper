@@ -1,8 +1,8 @@
 
-# Stock Discussion Crawler
+# Stock Discussion Scraper
 ![Screen Shot 2021-04-25 at 23 30 28 PM](https://user-images.githubusercontent.com/49122299/115998561-c0e0f800-a622-11eb-9ad9-156bdfbc2e9b.png)  
 
-종목 토론방 게시글 크롤러
+종목 토론방 게시글 스크래이퍼
 
 
 # Environment
@@ -16,15 +16,15 @@ Docker version 20.10.5
 
 
 # Target Site
-현재 네이버 주식 토론방 게시글만 크롤링 가능합니다.
+현재 네이버 주식 토론방 게시글만 스크래이핑 가능합니다.
 - [Naver Stock Discussion](https://finance.naver.com/sise/)
 
 # Feature  
-- Target Site에서 생성되는 토론글을 실시간으로 크롤링 합니다.
-  - 크롤링주기는 1초이며 새로운 게시글이 없으면 추기가 2배씩 늘어납니다.  
+- Target Site에서 생성되는 토론글을 실시간으로 스크래이핑 합니다.
+  - 스크래이핑 주기는 1초이며 새로운 게시글이 없으면 추기가 2배씩 늘어납니다.  
     - 무의미한 요청을 최대한 막기 위함입니다.  
-  - 크롤링 되는 속도가 느리게 느껴질 수 있지만, 서버에 부담을 줄이기 위해 주기를 길게 했습니다.
-- 크롤링 된 데이터는 `discussion/itemcode/YYYY_MM_DD.csv`파일로 생성됩니다.
+  - 스크래이핑 되는 속도가 느리게 느껴질 수 있지만, 서버에 부담을 줄이기 위해 주기를 길게 했습니다.
+- 스크래이핑 된 데이터는 `discussion/itemcode/YYYY_MM_DD.csv`파일로 생성됩니다.
   - 컬럼 형태는 `date,title,url,content`입니다.
 
 # Result
@@ -51,10 +51,10 @@ sh run_docker_crawler.sh
 준비중...
 
 ## Edit stock_list.txt
-크롤링 하고 싶은 종목의 종목 코드를 `stock_list.txt`파일에 입력합니다.
+스크래이핑 하고 싶은 종목의 종목 코드를 `stock_list.txt`파일에 입력합니다.
 지금은 시가총액 상위 10개 종목의 코드만 `stock_list.txt` 파일에 입력되어있습니다.
 
-`#`으로 시작되는 아이템 코드는 크롤링 하지 않습니다.  
+`#`으로 시작되는 아이템 코드는 스크래이핑 하지 않습니다.  
 
 ### stock_list.txt
 ```text
@@ -68,13 +68,13 @@ sh run_docker_crawler.sh
 005380
 068270
 035720
-#002501 크롤링 X
+#002501 스크래이핑 x
 ```  
 
-크롤링 하는 종목당 한 개의 크롤러가 쓰레드로 생성되고 실행됩니다.  
+스크래이핑 하는 종목당 한 개의 스크래이퍼가 쓰레드로 생성되고 실행됩니다.  
 
 # Docker
-성공적으로 도커가 빌드되고 컨테이너가 실행된다면 프로젝트 루트 디렉터리에 `vol`디렉터리가 생성되고 해당 디렉터리가 컨테이너의 볼륨으로 지정되어 크롤링 데이터들과 로그 파일(`YYYY-MM-DD_crawler.log`)이 생성됩니다.  
+성공적으로 도커가 빌드되고 컨테이너가 실행된다면 프로젝트 루트 디렉터리에 `vol`디렉터리가 생성되고 해당 디렉터리가 컨테이너의 볼륨으로 지정되어  데이터들과 로그 파일(`YYYY-MM-DD_crawler.log`)이 생성됩니다.  
 
   
 
